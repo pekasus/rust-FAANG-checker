@@ -12,7 +12,12 @@ use std::process;
 
 // #[derive(Deserialize, Debug)]
 // struct Json {
-
+    #[serde(rename = "01. symbol")]
+    symbol: String,
+    #[serde(rename = "02. open")]
+    open: String,
+    #[serde(rename = "03. high")]
+    high: String, 
 //     Global Quote": {
 //         "01. symbol": "AAPL",
 //         "02. open": "174.4800",
