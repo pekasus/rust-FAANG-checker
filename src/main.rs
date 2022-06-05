@@ -1,14 +1,21 @@
 use reqwest::{Client, Error};
-#[macro_use]
-extern crate serde_derive;
-extern crate dotenv;
-extern crate serde;
-extern crate serde_json;
+use serde;
+use serde_derive::Deserialize;
+use serde_json;
 
 use dotenv::dotenv;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::env;
+
+fn float_from_percent<'de, D>(deserializer: D) -> Result<f64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let mut s = String::deserialize(deserializer)?;
+    s.pop();
+    Ok(s.parse::<f64>().unwrap())
+}
 
 fn float_from_str<'de, D>(deserializer: D) -> Result<f64, D::Error>
 where
@@ -46,8 +53,8 @@ struct Ticker {
     previous_close: f64,
     #[serde(rename = "09. change", deserialize_with = "float_from_str")]
     change: f64,
-    #[serde(rename = "10. change percent")]
-    change_percent: String,
+    #[serde(rename = "10. change percent", deserialize_with = "float_from_percent")]
+    change_percent: f64,
 }
 
 #[tokio::main]
