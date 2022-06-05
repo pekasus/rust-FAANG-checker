@@ -3,6 +3,7 @@ use serde;
 use serde_derive::Deserialize;
 use serde_json;
 
+use chrono::NaiveDate;
 use dotenv::dotenv;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
@@ -33,6 +34,15 @@ where
     Ok(s.parse::<i32>().unwrap())
 }
 
+fn date_from_str<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    let naivedate = NaiveDate::parse_from_str(&s, "%Y-%m-%d").unwrap();
+    Ok(naivedate)
+}
+
 #[derive(Deserialize, Debug)]
 struct Ticker {
     #[serde(rename = "01. symbol")]
@@ -47,8 +57,8 @@ struct Ticker {
     price: f64,
     #[serde(rename = "06. volume", deserialize_with = "int_from_str")]
     volume: i32,
-    #[serde(rename = "07. latest trading day")]
-    latest_day: String,
+    #[serde(rename = "07. latest trading day", deserialize_with = "date_from_str")]
+    latest_day: NaiveDate,
     #[serde(rename = "08. previous close", deserialize_with = "float_from_str")]
     previous_close: f64,
     #[serde(rename = "09. change", deserialize_with = "float_from_str")]
