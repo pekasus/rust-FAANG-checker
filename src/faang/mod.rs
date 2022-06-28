@@ -1,7 +1,28 @@
 use chrono::NaiveDate;
+use reqwest::{Client, Error};
 use serde;
 use serde::{Deserialize, Deserializer};
 use serde_derive::Deserialize;
+use serde_json::Value;
+
+pub async fn get_ticker(client: Client, symbol: &str, api_key: String) -> Result<Ticker, Error> {
+    let url: String = format!(
+        "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={}&apikey={}",
+        symbol, api_key
+    );
+    let response = client.get(url).send().await?;
+
+    println!("Status: {}", &response.status());
+    let json_text = &response.text().await?;
+    let json_ser_ok = serde_json::from_str(&json_text);
+    if !json_ser_ok.is_ok() {
+        panic!("Something wrong with Json deserialize.")
+    }
+    let json_ser: Value = json_ser_ok.unwrap();
+
+    let t: Ticker = serde_json::from_value(json_ser["Global Quote"].clone()).unwrap();
+    Ok(t)
+}
 
 fn float_from_percent<'de, D>(deserializer: D) -> Result<f64, D::Error>
 where
