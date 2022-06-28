@@ -3,7 +3,7 @@ use reqwest::{Client, Error};
 use serde_json;
 use std::env;
 use stocks::faang::{Ticker, get_ticker};
-use tokio::main;
+use tokio;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
