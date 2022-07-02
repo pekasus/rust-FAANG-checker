@@ -1,3 +1,4 @@
+#![allow(unused)]
 use chrono::NaiveDate;
 use reqwest::{Client, Error};
 use serde;
