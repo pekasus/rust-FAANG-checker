@@ -4,10 +4,11 @@ use dotenv::dotenv;
 use rayon::prelude::*;
 use reqwest::{Client, Error};
 use serde_json;
-use std::env;
+use std::{env, thread};
 use std::thread::Thread;
 use stocks::faang::{get_ticker, Ticker};
 use tokio;
+use futures::future::join_all;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -17,8 +18,13 @@ async fn main() -> Result<(), Error> {
     //let client = Client::new();
     let stocks: Vec<&str> = vec!["META", "AMZN", "AAPL", "NFLX", "GOOG"];
 
-    let thread_pool: Vec<Thread> = Vec::with_capacity(5);
-    for idx in 0..5 {}
+    let mut vec_futures: Vec<_> = Vec::with_capacity(5);
+    for idx in 0..5 {
+        let stock = stocks[idx];
+        let future = get_ticker(Client::new(), stock, api_key);
+        vec_futures.push(future);
+    }
+    let results = join_all(vec_futures);
     // This was too dificult, hence we wrote the below steps.
     /*let results_before_await = stocks
         .par_iter()
